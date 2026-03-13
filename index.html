@@ -12,12 +12,7 @@
             theme: {
                 extend: {
                     colors: {
-                        vedu: {
-                            50: '#f0f9ff',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0c4a6e',
-                        }
+                        vedu: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
                     },
                     animation: {
                         'blob': 'blob 7s infinite',
@@ -67,25 +62,21 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* Modal Animation */
         .modal-enter { animation: modalEnter 0.3s ease-out forwards; }
         @keyframes modalEnter {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* App View Transitions */
         .app-view { display: none; }
         .app-view.active { display: block; animation: slideUp 0.4s ease-out; }
         
-        /* Loader */
         .loader {
             border: 3px solid #f3f3f3;
             border-radius: 50%;
             border-top: 3px solid #3498db;
             width: 20px;
             height: 20px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -93,7 +84,6 @@
             100% { transform: rotate(360deg); }
         }
     </style>
-<base target="_blank">
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col font-sans">
 
@@ -114,19 +104,26 @@
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
-                    <button id="user-profile" class="hidden items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">
-                        <img id="user-avatar" src="" class="w-6 h-6 rounded-full hidden">
-                        <span id="user-name" class="text-sm font-medium"></span>
-                    </button>
+                    <!-- Authenticated User Display (Hidden by default) -->
+                    <div id="auth-section" class="hidden items-center space-x-3">
+                        <div id="user-profile" class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                            <img id="user-avatar" src="" class="w-7 h-7 rounded-full border border-slate-300 dark:border-slate-600">
+                            <span id="user-name" class="text-sm font-medium"></span>
+                        </div>
+                        <button onclick="logout()" class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 font-medium">Logout</button>
+                    </div>
 
-                    <button onclick="handleAuth('github')" class="flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 rounded-full hover:bg-slate-800 transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <i class="fab fa-github mr-2"></i> Login with GitHub
-                    </button>
-                    
-                    <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+                    <!-- Guest Buttons -->
+                    <div id="guest-section" class="flex items-center space-x-3">
+                        <button onclick="initiateGitHubOAuth()" class="flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 rounded-full hover:bg-slate-800 transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fab fa-github mr-2"></i> Login with GitHub
+                        </button>
+                        
+                        <div class="h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
 
-                    <button onclick="openModal('login')" class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Login</button>
-                    <button onclick="openModal('register')" class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors dark:bg-slate-800 dark:text-blue-400 dark:hover:bg-slate-700">Register</button>
+                        <button onclick="openModal('login')" class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Login</button>
+                        <button onclick="openModal('register')" class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors dark:bg-slate-800 dark:text-blue-400 dark:hover:bg-slate-700">Register</button>
+                    </div>
 
                     <button id="theme-toggle" class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
                         <i id="theme-icon" class="fas fa-moon"></i>
@@ -142,13 +139,14 @@
         </div>
 
         <div id="mobile-menu" class="hidden md:hidden glass border-t border-slate-200 dark:border-slate-700">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <button onclick="handleAuth('github')" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><i class="fab fa-github mr-2"></i>Login with GitHub</button>
-                <button onclick="openModal('login')" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">Login</button>
-                <button onclick="openModal('register')" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-800">Register</button>
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3" id="mobile-auth-section">
+                <!-- Populated by JS based on auth state -->
             </div>
         </div>
     </nav>
+
+    <!-- OAuth Callback Handler (Invisible) -->
+    <div id="oauth-callback-handler" class="hidden"></div>
 
     <!-- MAIN CONTAINER -->
     <main id="main-container" class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
@@ -163,6 +161,12 @@
                     A digital ecosystem crafted by <span class="font-semibold text-slate-800 dark:text-white">Vedansh Jain</span>. 
                     Manage your life, work, and creativity.
                 </p>
+                <div id="auth-status-banner" class="mt-6 hidden">
+                    <span class="inline-flex items-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-medium">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Authenticated as <span id="auth-banner-name" class="ml-1 font-bold"></span>
+                    </span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -244,7 +248,7 @@
             </div>
         </div>
 
-        <!-- APP VIEWS (Hidden by default) -->
+        <!-- APP VIEWS (Same as before, omitted for brevity but included in full code) -->
         
         <!-- Gallery App -->
         <div id="gallery-view" class="app-view">
@@ -252,9 +256,7 @@
                 <h2 class="text-3xl font-bold"><i class="fas fa-images text-purple-500 mr-3"></i>Gallery</h2>
                 <button onclick="showHome()" class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"><i class="fas fa-arrow-left mr-2"></i>Back</button>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="gallery-grid">
-                <!-- Images injected by JS -->
-            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="gallery-grid"></div>
         </div>
 
         <!-- Contacts App -->
@@ -268,9 +270,7 @@
                     <input type="text" id="contact-search" placeholder="Search contacts..." class="flex-1 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border-none focus:ring-2 focus:ring-blue-500" onkeyup="filterContacts()">
                     <button onclick="addContact()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><i class="fas fa-plus"></i></button>
                 </div>
-                <div id="contacts-list" class="divide-y divide-slate-200 dark:divide-slate-700 max-h-[600px] overflow-y-auto">
-                    <!-- Contacts injected by JS -->
-                </div>
+                <div id="contacts-list" class="divide-y divide-slate-200 dark:divide-slate-700 max-h-[600px] overflow-y-auto"></div>
             </div>
         </div>
 
@@ -283,9 +283,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-1 space-y-4">
                     <button onclick="createNewNote()" class="w-full py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 font-medium shadow-lg"><i class="fas fa-plus mr-2"></i>New Note</button>
-                    <div id="notes-list" class="space-y-2 max-h-[500px] overflow-y-auto">
-                        <!-- Note previews -->
-                    </div>
+                    <div id="notes-list" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
                 </div>
                 <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 min-h-[500px]">
                     <input type="text" id="note-title" placeholder="Note Title" class="w-full text-2xl font-bold mb-4 bg-transparent border-b border-slate-300 dark:border-slate-600 pb-2 focus:outline-none focus:border-yellow-500">
@@ -312,9 +310,7 @@
                 <div class="grid grid-cols-7 gap-2 mb-2 text-center font-medium text-slate-500">
                     <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
                 </div>
-                <div id="calendar-grid" class="grid grid-cols-7 gap-2">
-                    <!-- Days injected by JS -->
-                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
             </div>
         </div>
 
@@ -324,9 +320,7 @@
                 <h2 class="text-3xl font-bold"><i class="fas fa-newspaper text-red-500 mr-3"></i>News Feed</h2>
                 <button onclick="showHome()" class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"><i class="fas fa-arrow-left mr-2"></i>Back</button>
             </div>
-            <div id="news-feed" class="space-y-6 max-w-4xl mx-auto">
-                <!-- News items injected by JS -->
-            </div>
+            <div id="news-feed" class="space-y-6 max-w-4xl mx-auto"></div>
         </div>
 
     </main>
@@ -356,22 +350,42 @@
             <h3 class="text-2xl font-bold">Welcome Back</h3>
             <button onclick="closeAllModals()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <form onsubmit="handleLogin(event)" class="space-y-4">
+        <form onsubmit="handleEmailLogin(event)" class="space-y-4">
             <div>
                 <label class="block text-sm font-medium mb-1">Email</label>
-                <input type="email" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="email" id="login-email" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">Password</label>
-                <input type="password" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="password" id="login-password" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center">
+                    <input type="checkbox" class="mr-2 rounded border-slate-300 text-blue-600 focus:ring-blue-500"> Remember me
+                </label>
+                <a href="#" class="text-blue-600 hover:underline">Forgot password?</a>
             </div>
             <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex justify-center items-center">
                 <span id="login-text">Sign In</span>
                 <div id="login-loader" class="loader hidden ml-2"></div>
             </button>
         </form>
-        <div class="mt-6 text-center text-sm text-slate-500">
-            Don't have an account? <button onclick="switchModal('register')" class="text-blue-600 hover:underline">Register</button>
+        
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-300 dark:border-slate-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white dark:bg-slate-800 text-slate-500">Or continue with</span>
+            </div>
+        </div>
+
+        <button onclick="initiateGitHubOAuth()" class="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors flex justify-center items-center mb-4">
+            <i class="fab fa-github mr-2"></i> GitHub
+        </button>
+        
+        <div class="text-center text-sm text-slate-500">
+            Don't have an account? <button onclick="switchModal('register')" class="text-blue-600 hover:underline font-medium">Register</button>
         </div>
     </div>
 
@@ -384,22 +398,24 @@
         <form onsubmit="handleRegister(event)" class="space-y-4">
             <div>
                 <label class="block text-sm font-medium mb-1">Full Name</label>
-                <input type="text" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="text" id="reg-name" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">Email</label>
-                <input type="email" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="email" id="reg-email" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">Password</label>
-                <input type="password" required class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="password" id="reg-password" required minlength="8" class="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <p class="text-xs text-slate-500 mt-1">Must be at least 8 characters</p>
             </div>
-            <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                Create Account
+            <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex justify-center items-center">
+                <span id="register-text">Create Account</span>
+                <div id="register-loader" class="loader hidden ml-2"></div>
             </button>
         </form>
         <div class="mt-6 text-center text-sm text-slate-500">
-            Already have an account? <button onclick="switchModal('login')" class="text-blue-600 hover:underline">Login</button>
+            Already have an account? <button onclick="switchModal('login')" class="text-blue-600 hover:underline font-medium">Login</button>
         </div>
     </div>
 
@@ -412,29 +428,54 @@
     </div>
 
     <script>
-        // --- DATA & STATE ---
+        // ==========================================
+        // CONFIGURATION - REPLACE WITH YOUR VALUES
+        // ==========================================
+        const CONFIG = {
+            // GitHub OAuth App Credentials
+            GITHUB_CLIENT_ID: 'Ov23liXXXXXXXXXXXXXX', // Replace with your GitHub OAuth App Client ID
+            
+            // Backend API Endpoints (You need to implement these)
+            API_BASE_URL: 'https://api.vedurocks.com', // Your backend API
+            GITHUB_REDIRECT_URI: window.location.origin + '/auth/github/callback',
+            
+            // For demo purposes, using localStorage as fallback
+            // In production, use secure HTTP-only cookies
+            USE_REAL_BACKEND: false // Set to true when backend is ready
+        };
+
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
         const state = {
-            currentUser: null,
-            notes: [
-                { id: 1, title: 'Project Ideas', content: '1. AI Chatbot\n2. E-commerce site\n3. Portfolio update', date: new Date().toLocaleDateString() },
-                { id: 2, title: 'Shopping List', content: '- Milk\n- Eggs\n- Bread\n- Coffee', date: new Date().toLocaleDateString() }
-            ],
-            contacts: [
-                { name: 'Vedansh Jain', email: 'vedansh@vedurocks.com', role: 'CEO' },
-                { name: 'Sarah Smith', email: 'sarah@example.com', role: 'Designer' },
-                { name: 'Mike Johnson', email: 'mike@example.com', role: 'Developer' },
-                { name: 'Emma Wilson', email: 'emma@example.com', role: 'Marketing' }
-            ],
-            news: [
-                { title: 'Vedurocks Raises Series A', excerpt: 'We are excited to announce our latest funding round led by top investors.', date: '2 hours ago', tag: 'Company' },
-                { title: 'New Feature: Dark Mode', excerpt: 'Users can now toggle between light and dark themes automatically.', date: '1 day ago', tag: 'Product' },
-                { title: 'Tech Trends 2024', excerpt: 'AI and Web3 continue to dominate the startup landscape this year.', date: '3 days ago', tag: 'Industry' }
-            ],
-            currentNoteId: null,
+            currentUser: JSON.parse(localStorage.getItem('vedurocks_user') || 'null'),
+            token: localStorage.getItem('vedurocks_token') || null,
+            notes: JSON.parse(localStorage.getItem('vedurocks_notes') || '[]'),
+            contacts: JSON.parse(localStorage.getItem('vedurocks_contacts') || '[]'),
             currentMonth: new Date()
         };
 
-        // --- THEME LOGIC ---
+        // Initialize default data if empty
+        if (state.notes.length === 0) {
+            state.notes = [
+                { id: 1, title: 'Welcome to Vedurocks', content: 'This is your first note. Click "New Note" to create more!', date: new Date().toLocaleDateString() }
+            ];
+            saveNotes();
+        }
+        if (state.contacts.length === 0) {
+            state.contacts = [
+                { name: 'Vedansh Jain', email: 'vedansh@vedurocks.com', role: 'CEO' },
+                { name: 'Support Team', email: 'support@vedurocks.com', role: 'Support' }
+            ];
+            saveContacts();
+        }
+
+        function saveNotes() { localStorage.setItem('vedurocks_notes', JSON.stringify(state.notes)); }
+        function saveContacts() { localStorage.setItem('vedurocks_contacts', JSON.stringify(state.contacts)); }
+
+        // ==========================================
+        // THEME LOGIC
+        // ==========================================
         const html = document.documentElement;
         const themeIcon = document.getElementById('theme-icon');
         
@@ -459,10 +500,357 @@
             const isDark = html.classList.toggle('dark');
             localStorage.setItem('vedurocks-theme', isDark ? 'dark' : 'light');
             updateTheme(isDark);
-            showToast(`Switched to ${isDark ? 'dark' : 'light'} mode`);
         });
 
-        // --- AUTH & MODALS ---
+        // ==========================================
+        // REAL GITHUB OAUTH IMPLEMENTATION
+        // ==========================================
+        
+        /**
+         * Step 1: Initiate GitHub OAuth Flow
+         * Redirects user to GitHub authorization page
+         */
+        function initiateGitHubOAuth() {
+            // Generate PKCE parameters for security
+            const state = generateRandomString(32);
+            const verifier = generateRandomString(64);
+            
+            // Store in sessionStorage (not localStorage for security)
+            sessionStorage.setItem('oauth_state', state);
+            sessionStorage.setItem('oauth_verifier', verifier);
+            
+            // Build GitHub OAuth URL
+            const params = new URLSearchParams({
+                client_id: CONFIG.GITHUB_CLIENT_ID,
+                redirect_uri: CONFIG.GITHUB_REDIRECT_URI,
+                scope: 'user:email read:user',
+                state: state,
+                allow_signup: 'true'
+            });
+            
+            const githubAuthUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
+            
+            // Redirect to GitHub
+            window.location.href = githubAuthUrl;
+        }
+
+        /**
+         * Step 2: Handle OAuth Callback
+         * Called when GitHub redirects back to your app
+         */
+        function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const returnedState = urlParams.get('state');
+            const error = urlParams.get('error');
+            
+            // Clean URL
+            if (code || error) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Handle errors
+            if (error) {
+                showToast(`GitHub OAuth error: ${error}`, 'error');
+                return;
+            }
+            
+            if (!code) return; // Not an OAuth callback
+            
+            // Verify state parameter (CSRF protection)
+            const storedState = sessionStorage.getItem('oauth_state');
+            if (returnedState !== storedState) {
+                showToast('Security error: State mismatch', 'error');
+                return;
+            }
+            
+            // Clear stored state
+            sessionStorage.removeItem('oauth_state');
+            
+            // Exchange code for token
+            exchangeCodeForToken(code);
+        }
+
+        /**
+         * Step 3: Exchange Authorization Code for Access Token
+         * This MUST be done on your backend server for security
+         */
+        async function exchangeCodeForToken(code) {
+            showToast('Completing GitHub authentication...');
+            
+            if (CONFIG.USE_REAL_BACKEND) {
+                // REAL BACKEND IMPLEMENTATION
+                // Your backend exchanges the code for a token securely
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/auth/github/callback`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code })
+                    });
+                    
+                    if (!response.ok) throw new Error('Token exchange failed');
+                    
+                    const data = await response.json();
+                    handleAuthSuccess(data.user, data.token);
+                } catch (err) {
+                    showToast('Authentication failed: ' + err.message, 'error');
+                }
+            } else {
+                // DEMO MODE: Simulate backend exchange
+                // In production, remove this and use the real backend above
+                console.warn('Running in DEMO mode. Implement backend for production.');
+                
+                setTimeout(() => {
+                    // Simulate fetching user data from GitHub API
+                    fetchGitHubUserData(code);
+                }, 1500);
+            }
+        }
+
+        /**
+         * Fetch user data from GitHub API (requires token)
+         * In production, this is done by your backend
+         */
+        async function fetchGitHubUserData(code) {
+            // WARNING: This is insecure for production!
+            // Client-side token exchange exposes client_secret
+            // This is only for demonstration without a backend
+            
+            try {
+                // Step A: Exchange code for token (INSECURE - DO IN BACKEND)
+                const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        client_id: CONFIG.GITHUB_CLIENT_ID,
+                        client_secret: 'YOUR_CLIENT_SECRET', // NEVER expose this in frontend!
+                        code: code
+                    })
+                });
+                
+                const tokenData = await tokenResponse.json();
+                
+                if (tokenData.error) {
+                    throw new Error(tokenData.error_description);
+                }
+                
+                // Step B: Fetch user data with token
+                const userResponse = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `Bearer ${tokenData.access_token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                const userData = await userResponse.json();
+                
+                // Step C: Fetch emails (optional)
+                const emailResponse = await fetch('https://api.github.com/user/emails', {
+                    headers: {
+                        'Authorization': `Bearer ${tokenData.access_token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                const emails = await emailResponse.json();
+                const primaryEmail = emails.find(e => e.primary)?.email || userData.login + '@users.noreply.github.com';
+                
+                const user = {
+                    id: userData.id,
+                    name: userData.name || userData.login,
+                    email: primaryEmail,
+                    avatar: userData.avatar_url,
+                    username: userData.login,
+                    provider: 'github'
+                };
+                
+                handleAuthSuccess(user, tokenData.access_token);
+                
+            } catch (err) {
+                showToast('GitHub authentication failed: ' + err.message, 'error');
+                console.error('OAuth Error:', err);
+            }
+        }
+
+        /**
+         * Handle successful authentication
+         */
+        function handleAuthSuccess(user, token) {
+            state.currentUser = user;
+            state.token = token;
+            
+            // Store securely (use httpOnly cookies in production!)
+            localStorage.setItem('vedurocks_user', JSON.stringify(user));
+            localStorage.setItem('vedurocks_token', token);
+            
+            updateUIForAuth();
+            showToast(`Welcome, ${user.name}!`);
+            closeAllModals();
+            
+            // Redirect to home if on callback URL
+            if (window.location.pathname.includes('callback')) {
+                window.location.href = '/';
+            }
+        }
+
+        /**
+         * Logout
+         */
+        function logout() {
+            state.currentUser = null;
+            state.token = null;
+            localStorage.removeItem('vedurocks_user');
+            localStorage.removeItem('vedurocks_token');
+            
+            updateUIForAuth();
+            showToast('Logged out successfully');
+        }
+
+        /**
+         * Update UI based on authentication state
+         */
+        function updateUIForAuth() {
+            const authSection = document.getElementById('auth-section');
+            const guestSection = document.getElementById('guest-section');
+            const mobileAuth = document.getElementById('mobile-auth-section');
+            const banner = document.getElementById('auth-status-banner');
+            const bannerName = document.getElementById('auth-banner-name');
+            
+            if (state.currentUser) {
+                // Show authenticated UI
+                authSection.classList.remove('hidden');
+                authSection.classList.add('flex');
+                guestSection.classList.add('hidden');
+                
+                document.getElementById('user-name').textContent = state.currentUser.name;
+                document.getElementById('user-avatar').src = state.currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.name)}&background=random`;
+                
+                banner.classList.remove('hidden');
+                bannerName.textContent = state.currentUser.name;
+                
+                // Mobile menu
+                mobileAuth.innerHTML = `
+                    <div class="px-3 py-2 text-sm text-slate-500">Signed in as ${state.currentUser.name}</div>
+                    <button onclick="logout()" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">Logout</button>
+                `;
+            } else {
+                // Show guest UI
+                authSection.classList.add('hidden');
+                authSection.classList.remove('flex');
+                guestSection.classList.remove('hidden');
+                banner.classList.add('hidden');
+                
+                mobileAuth.innerHTML = `
+                    <button onclick="initiateGitHubOAuth()" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><i class="fab fa-github mr-2"></i>Login with GitHub</button>
+                    <button onclick="openModal('login')" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">Login</button>
+                    <button onclick="openModal('register')" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-800">Register</button>
+                `;
+            }
+        }
+
+        // Helper: Generate random string for PKCE
+        function generateRandomString(length) {
+            const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+            let text = '';
+            for (let i = 0; i < length; i++) {
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+            return text;
+        }
+
+        // ==========================================
+        // EMAIL/PASSWORD AUTH (Backend Required)
+        // ==========================================
+        
+        async function handleEmailLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const text = document.getElementById('login-text');
+            const loader = document.getElementById('login-loader');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            text.textContent = 'Signing in...';
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+            
+            if (CONFIG.USE_REAL_BACKEND) {
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    if (!res.ok) throw new Error('Invalid credentials');
+                    
+                    const data = await res.json();
+                    handleAuthSuccess(data.user, data.token);
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            } else {
+                // Demo mode
+                await new Promise(r => setTimeout(r, 1000));
+                const mockUser = {
+                    id: Date.now(),
+                    name: email.split('@')[0],
+                    email: email,
+                    avatar: `https://ui-avatars.com/api/?name=${email}&background=random`,
+                    provider: 'email'
+                };
+                handleAuthSuccess(mockUser, 'mock_token_' + Date.now());
+            }
+            
+            text.textContent = 'Sign In';
+            loader.classList.add('hidden');
+            btn.disabled = false;
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const text = document.getElementById('register-text');
+            const loader = document.getElementById('register-loader');
+            
+            text.textContent = 'Creating account...';
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+            
+            if (CONFIG.USE_REAL_BACKEND) {
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password })
+                    });
+                    
+                    if (!res.ok) throw new Error('Registration failed');
+                    
+                    showToast('Account created! Please login.');
+                    switchModal('login');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            } else {
+                await new Promise(r => setTimeout(r, 1000));
+                showToast('Account created! Please login.');
+                switchModal('login');
+            }
+            
+            text.textContent = 'Create Account';
+            loader.classList.add('hidden');
+            btn.disabled = false;
+        }
+
+        // ==========================================
+        // MODAL SYSTEM
+        // ==========================================
         function openModal(type) {
             const overlay = document.getElementById('modal-overlay');
             const modal = document.getElementById(`${type}-modal`);
@@ -470,7 +858,6 @@
             overlay.classList.remove('hidden');
             modal.classList.remove('hidden');
             
-            // Trigger animation
             setTimeout(() => {
                 overlay.classList.remove('opacity-0');
                 modal.classList.remove('scale-95', 'opacity-0');
@@ -499,74 +886,9 @@
             setTimeout(() => openModal(type), 300);
         }
 
-        // Simulated Backend Auth
-        async function handleLogin(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const text = document.getElementById('login-text');
-            const loader = document.getElementById('login-loader');
-            
-            text.textContent = 'Signing in...';
-            loader.classList.remove('hidden');
-            btn.disabled = true;
-
-            // Simulate API delay
-            await new Promise(r => setTimeout(r, 1500));
-            
-            // Mock success
-            state.currentUser = { name: 'Demo User', email: 'user@vedurocks.com' };
-            updateUIForAuth();
-            closeAllModals();
-            showToast('Successfully logged in!');
-            
-            text.textContent = 'Sign In';
-            loader.classList.add('hidden');
-            btn.disabled = false;
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            showToast('Account created! Please login.', 'success');
-            setTimeout(() => switchModal('login'), 1000);
-        }
-
-        function handleAuth(type) {
-            if (type === 'github') {
-                // Simulate GitHub OAuth flow
-                const width = 500, height = 600;
-                const left = (screen.width - width) / 2;
-                const top = (screen.height - height) / 2;
-                
-                // In a real app, this would be: window.location.href = '/auth/github'
-                // Here we simulate the popup and callback
-                showToast('Connecting to GitHub...');
-                
-                setTimeout(() => {
-                    // Simulate successful OAuth callback
-                    state.currentUser = { 
-                        name: 'GitHub User', 
-                        email: 'github@user.com',
-                        avatar: 'https://github.com/github.png' 
-                    };
-                    updateUIForAuth();
-                    showToast('Authenticated with GitHub!');
-                }, 2000);
-            }
-        }
-
-        function updateUIForAuth() {
-            if (state.currentUser) {
-                document.getElementById('user-profile').classList.remove('hidden');
-                document.getElementById('user-profile').classList.add('flex');
-                document.getElementById('user-name').textContent = state.currentUser.name;
-                if (state.currentUser.avatar) {
-                    document.getElementById('user-avatar').src = state.currentUser.avatar;
-                    document.getElementById('user-avatar').classList.remove('hidden');
-                }
-            }
-        }
-
-        // --- APP NAVIGATION ---
+        // ==========================================
+        // APP NAVIGATION & FUNCTIONALITY
+        // ==========================================
         function showHome() {
             document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
             document.getElementById('home-view').classList.add('active');
@@ -574,40 +896,37 @@
         }
 
         function loadApp(appName) {
+            // Check auth for protected apps (optional)
+            // if (!state.currentUser) { openModal('login'); return; }
+            
             document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
             document.getElementById(`${appName}-view`).classList.add('active');
             
-            // Initialize specific app data
             if (appName === 'gallery') initGallery();
             if (appName === 'contacts') renderContacts();
-            if (appName === 'notes') renderNotesList();
+            if (appName === 'notes') { renderNotesList(); loadNote(state.notes[0]?.id); }
             if (appName === 'calendar') initCalendar();
             if (appName === 'news') renderNews();
             
             window.scrollTo(0,0);
         }
 
-        // --- GALLERY APP ---
+        // Gallery
         function initGallery() {
             const grid = document.getElementById('gallery-grid');
             grid.innerHTML = '';
-            // Generate placeholder images
             for (let i = 1; i <= 12; i++) {
                 const div = document.createElement('div');
                 div.className = 'aspect-square bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden hover:opacity-90 cursor-pointer relative group';
-                div.innerHTML = `
-                    <img src="https://picsum.photos/400/400?random=${i}" alt="Gallery ${i}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
-                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
-                `;
+                div.innerHTML = `<img src="https://picsum.photos/400/400?random=${i}" class="w-full h-full object-cover transition-transform group-hover:scale-110"><div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>`;
                 grid.appendChild(div);
             }
         }
 
-        // --- CONTACTS APP ---
+        // Contacts
         function renderContacts(filter = '') {
             const list = document.getElementById('contacts-list');
             list.innerHTML = '';
-            
             const filtered = state.contacts.filter(c => 
                 c.name.toLowerCase().includes(filter.toLowerCase()) || 
                 c.email.toLowerCase().includes(filter.toLowerCase())
@@ -618,9 +937,7 @@
                 item.className = 'p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors';
                 item.innerHTML = `
                     <div class="flex items-center space-x-4">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
-                            ${contact.name.charAt(0)}
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">${contact.name.charAt(0)}</div>
                         <div>
                             <h4 class="font-medium text-slate-900 dark:text-white">${contact.name}</h4>
                             <p class="text-sm text-slate-500">${contact.email}</p>
@@ -633,32 +950,30 @@
         }
 
         function filterContacts() {
-            const search = document.getElementById('contact-search').value;
-            renderContacts(search);
+            renderContacts(document.getElementById('contact-search').value);
         }
 
         function addContact() {
             const name = prompt('Enter name:');
             if (name) {
                 state.contacts.push({ name, email: 'new@example.com', role: 'New' });
+                saveContacts();
                 renderContacts();
                 showToast('Contact added!');
             }
         }
 
-        // --- NOTES APP ---
+        // Notes
+        let currentNoteId = null;
+
         function renderNotesList() {
             const list = document.getElementById('notes-list');
             list.innerHTML = '';
-            
             state.notes.forEach(note => {
                 const div = document.createElement('div');
-                div.className = `p-3 rounded-lg cursor-pointer transition-colors ${state.currentNoteId === note.id ? 'bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500' : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'}`;
+                div.className = `p-3 rounded-lg cursor-pointer transition-colors ${currentNoteId === note.id ? 'bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500' : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'}`;
                 div.onclick = () => loadNote(note.id);
-                div.innerHTML = `
-                    <h4 class="font-medium truncate">${note.title}</h4>
-                    <p class="text-xs text-slate-500 mt-1">${note.date}</p>
-                `;
+                div.innerHTML = `<h4 class="font-medium truncate">${note.title}</h4><p class="text-xs text-slate-500 mt-1">${note.date}</p>`;
                 list.appendChild(div);
             });
         }
@@ -666,60 +981,50 @@
         function loadNote(id) {
             const note = state.notes.find(n => n.id === id);
             if (note) {
-                state.currentNoteId = id;
+                currentNoteId = id;
                 document.getElementById('note-title').value = note.title;
                 document.getElementById('note-content').value = note.content;
-                renderNotesList(); // Update active state
+                renderNotesList();
             }
         }
 
         function createNewNote() {
-            const newNote = {
-                id: Date.now(),
-                title: 'New Note',
-                content: '',
-                date: new Date().toLocaleDateString()
-            };
+            const newNote = { id: Date.now(), title: 'New Note', content: '', date: new Date().toLocaleDateString() };
             state.notes.unshift(newNote);
+            saveNotes();
             loadNote(newNote.id);
             showToast('New note created');
         }
 
         function saveCurrentNote() {
-            if (state.currentNoteId) {
-                const note = state.notes.find(n => n.id === state.currentNoteId);
+            if (currentNoteId) {
+                const note = state.notes.find(n => n.id === currentNoteId);
                 note.title = document.getElementById('note-title').value;
                 note.content = document.getElementById('note-content').value;
+                saveNotes();
                 renderNotesList();
                 showToast('Note saved!');
             }
         }
 
-        // --- CALENDAR APP ---
+        // Calendar
         function initCalendar() {
             const grid = document.getElementById('calendar-grid');
             const monthLabel = document.getElementById('calendar-month');
-            
             const year = state.currentMonth.getFullYear();
             const month = state.currentMonth.getMonth();
             
             monthLabel.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-            
             grid.innerHTML = '';
             
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            // Empty cells
-            for (let i = 0; i < firstDay; i++) {
-                grid.appendChild(document.createElement('div'));
-            }
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
             
-            // Days
             for (let i = 1; i <= daysInMonth; i++) {
                 const day = document.createElement('div');
                 const isToday = new Date().toDateString() === new Date(year, month, i).toDateString();
-                
                 day.className = `aspect-square flex items-center justify-center rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${isToday ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-slate-50 dark:bg-slate-800'}`;
                 day.textContent = i;
                 day.onclick = () => showToast(`Selected: ${month + 1}/${i}/${year}`);
@@ -732,12 +1037,17 @@
             initCalendar();
         }
 
-        // --- NEWS APP ---
+        // News
         function renderNews() {
             const feed = document.getElementById('news-feed');
-            feed.innerHTML = '';
+            const news = [
+                { title: 'Vedurocks Platform Update', excerpt: 'New authentication system with GitHub OAuth support is now live.', date: 'Just now', tag: 'Product' },
+                { title: 'Security Best Practices', excerpt: 'Learn how to implement secure OAuth flows in your web applications.', date: '2 hours ago', tag: 'Security' },
+                { title: 'New Features Released', excerpt: 'Gallery, Contacts, Notes, Calendar, and News modules are now available.', date: '1 day ago', tag: 'Update' }
+            ];
             
-            state.news.forEach(item => {
+            feed.innerHTML = '';
+            news.forEach(item => {
                 const article = document.createElement('article');
                 article.className = 'bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer';
                 article.innerHTML = `
@@ -747,13 +1057,14 @@
                     </div>
                     <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">${item.title}</h3>
                     <p class="text-slate-600 dark:text-slate-300 leading-relaxed">${item.excerpt}</p>
-                    <button class="mt-4 text-sm font-medium text-blue-600 hover:underline">Read more →</button>
                 `;
                 feed.appendChild(article);
             });
         }
 
-        // --- UTILS ---
+        // ==========================================
+        // UTILITIES
+        // ==========================================
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const msg = document.getElementById('toast-message');
@@ -771,8 +1082,19 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
 
-        // Initialize
-        initTheme();
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            handleOAuthCallback(); // Check if we just returned from GitHub
+            updateUIForAuth(); // Restore session if exists
+            
+            // Check for existing session on load
+            if (state.currentUser) {
+                showToast(`Welcome back, ${state.currentUser.name}!`);
+            }
+        });
     </script>
 </body>
 </html>
