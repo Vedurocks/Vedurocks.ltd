@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/push", "dest": "/api/push.js" },
+    { "src": "/pull", "dest": "/api/pull.js" },
+    { "src": "/groups", "dest": "/api/groups.js" },
+    { "src": "/auth", "dest": "/api/auth.js" }
+  ]
+}
