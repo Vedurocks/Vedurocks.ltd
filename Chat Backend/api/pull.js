@@ -1,46 +1,50 @@
-import { kv } from '@vercel/kv';
-import { decrypt } from '../lib/crypto.js';
+import { loadData } from './_utils.js';
+
+const secret = "mychatsecretkey2024";
+
+function decrypt(encrypted) {
+  let base64 = encrypted.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  const text = Buffer.from(base64, 'base64').toString();
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    result += String.fromCharCode(text.charCodeAt(i) ^ secret.charCodeAt(i % secret.length));
+  }
+  return result;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
   const { userId, password } = req.query;
-  
   if (!userId) return res.status(400).json({ error: 'Need userId' });
 
-  // Simple auth check (store password in KV on first use)
-  const authKey = `auth:${userId}`;
-  const storedPass = await kv.get(authKey);
+  const db = await loadData();
   
-  if (storedPass && storedPass !== password) {
+  // Auth
+  if (!db.users[userId]) {
+    db.users[userId] = { channels: [], password };
+    // Note: In real app, save password properly
+  } else if (db.users[userId].password && db.users[userId].password !== password) {
     return res.status(401).json({ error: 'Wrong password' });
   }
-  
-  if (!storedPass && password) {
-    // First time, set password
-    await kv.set(authKey, password);
-  }
 
-  // Get all channels this user is in
-  const userChannels = await kv.smembers(`user:${userId}:chats`);
-  
+  const userChannels = db.users[userId]?.channels || [];
   const chats = [];
   
   for (const channelId of userChannels) {
-    const messages = await kv.lrange(`channel:${channelId}`, 0, 50);
-    const parsed = messages.map(m => JSON.parse(m));
+    const messages = db.messages
+      .filter(m => m.channelId === channelId)
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 50);
     
-    // Get latest message for preview
-    const latest = parsed[0];
+    if (messages.length === 0) continue;
     
-    // Decrypt group name if exists
+    const latest = messages[0];
     let groupName = null;
+    
     if (latest.groupId) {
-      try {
-        groupName = decrypt(latest.groupId);
-      } catch(e) {
-        groupName = "Unknown Group";
-      }
+      try { groupName = decrypt(latest.groupId); } catch(e) { groupName = "Unknown"; }
     }
     
     chats.push({
@@ -50,16 +54,10 @@ export default async function handler(req, res) {
       groupName,
       latestMessage: latest.data,
       latestTime: latest.timestamp,
-      unread: 0, // TODO: implement read receipts
-      messages: parsed.reverse() // Oldest first
+      messages: messages.reverse()
     });
   }
 
-  // Sort by latest message
-  chats.sort((a, b) => b.latestTime - a.latestTime);
-
-  res.json({ 
-    userId,
-    chats 
-  });
+  chats.sort((a, b) => (b.latestTime || 0) - (a.latestTime || 0));
+  res.json({ userId, chats });
 }
