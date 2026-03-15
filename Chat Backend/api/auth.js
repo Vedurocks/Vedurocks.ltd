@@ -1,26 +1,20 @@
-import { kv } from '@vercel/kv';
+import { loadData, saveData } from './_utils.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  
   const { userId, password } = req.query;
   
   if (!userId || !password) {
     return res.status(400).json({ error: 'Need userId and password' });
   }
   
-  const authKey = `auth:${userId}`;
-  const stored = await kv.get(authKey);
+  const db = await loadData();
   
-  if (!stored) {
-    // New user
-    await kv.set(authKey, password);
+  if (!db.users[userId]) {
+    db.users[userId] = { channels: [], password };
+    await saveData(db);
     return res.json({ success: true, newUser: true });
   }
   
-  if (stored === password) {
-    return res.json({ success: true });
-  }
-  
-  res.status(401).json({ success: false, error: 'Wrong password' });
+  res.json({ success: db.users[userId].password === password });
 }
