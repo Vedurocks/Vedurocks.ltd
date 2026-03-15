@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Viewer</title>
+  <style>
+    body { background: #111; color: #0f0; font-family: monospace; padding: 20px; }
+    .login { max-width: 300px; margin: 100px auto; }
+    input { background: #222; border: 1px solid #0f0; color: #0f0; padding: 10px; width: 100%; margin: 5px 0; }
+    button { background: #0f0; color: #000; border: none; padding: 10px; width: 100%; cursor: pointer; }
+    .chat { border: 1px solid #333; margin: 10px 0; padding: 10px; }
+    .msg { padding: 5px; border-bottom: 1px solid #222; }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="login">
+    <h2>NEXUS CHAT</h2>
+    <input type="text" id="userId" placeholder="User ID">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">ENTER</button>
+  </div>
+
+  <div id="chatScreen" style="display:none;">
+    <h2>Chats for <span id="currentUser"></span></h2>
+    <div id="chats"></div>
+    <button onclick="logout()">LOGOUT</button>
+  </div>
+
+  <script>
+    const API = 'https://your-project.vercel.app';
+    
+    async function login() {
+      const userId = document.getElementById('userId').value;
+      const password = document.getElementById('password').value;
+      
+      const res = await fetch(`${API}/auth?userId=${userId}&password=${password}`);
+      const data = await res.json();
+      
+      if (data.success) {
+        localStorage.setItem('user', JSON.stringify({userId, password}));
+        loadChats();
+      } else {
+        alert('Wrong password');
+      }
+    }
+    
+    async function loadChats() {
+      const {userId, password} = JSON.parse(localStorage.getItem('user'));
+      document.getElementById('currentUser').innerText = userId;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('chatScreen').style.display = 'block';
+      
+      const res = await fetch(`${API}/pull?userId=${userId}&password=${password}`);
+      const data = await res.json();
+      
+      const container = document.getElementById('chats');
+      container.innerHTML = '';
+      
+      data.chats.forEach(chat => {
+        const div = document.createElement('div');
+        div.className = 'chat';
+        div.innerHTML = `
+          <h3>${chat.groupName || 'Private Chat'} (${chat.channelId})</h3>
+          <div>${chat.messages.map(m => `<div class="msg"><b>${m.userId}:</b> ${m.data}</div>`).join('')}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    function logout() {
+      localStorage.removeItem('user');
+      location.reload();
+    }
+    
+    // Auto login
+    if (localStorage.getItem('user')) loadChats();
+  </script>
+</body>
+</html>
